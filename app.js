@@ -256,12 +256,28 @@
   }
 
   function addLane(inst){
-    if(lanes.length>=MAX_LANES) lanes.shift();
+    if(lanes.length>=MAX_LANES) return loopFull(); // on ne supprime jamais une piste à la place de l'enfant
     lanes.push(mkLane(inst)); renderLanes(); saveSoon();
     if(!playing) togglePlay();
   }
 
+  // boucle pleine : le panneau se secoue et les croix clignotent, sans texte à lire
+  function loopFull(){
+    const lp=document.querySelector('.loop');
+    lp.classList.remove('nope'); void lp.offsetWidth; lp.classList.add('nope');
+    clearTimeout(loopFull.t); loopFull.t=setTimeout(()=>lp.classList.remove('nope'),1700);
+    voc(ctx.currentTime+0.01,{type:'sine',f:[[0,330],[0.18,180]],ft:'lowpass',ff:[[0,1500]],a:0.01,d:0.2,p:0.35});
+  }
+
+  function updateAdd(){
+    const add=$('add'), full=lanes.length>=MAX_LANES && !choosing;
+    add.classList.toggle('full',full);
+    add.textContent = choosing ? 'Annuler' : (full ? '✋' : '＋ Ajouter');
+    add.setAttribute('aria-label', full ? 'Boucle pleine : enlève une piste' : add.textContent);
+  }
+
   function renderLanes(){
+    updateAdd();
     lanesEl.innerHTML='';
     if(!lanes.length){ lanesEl.innerHTML='<div class="empty">Ta boucle est vide. Touche « ＋ Ajouter » puis un son.</div>'; return; }
     lanes.forEach((l,li)=>{
@@ -330,7 +346,7 @@
 
   function setChoosing(v){
     choosing=v; app.classList.toggle('choosing',v); $('banner').hidden=!v;
-    const add=$('add'); add.classList.toggle('on',v); add.textContent=v?'Annuler':'＋ Ajouter';
+    $('add').classList.toggle('on',v); updateAdd();
   }
 
   function setTempoUI(){ document.querySelectorAll('.tempo button').forEach(x=>x.classList.toggle('sel',+x.dataset.bpm===bpm)); }
@@ -422,7 +438,10 @@
 
   /* ================= Démarrage ================= */
   $('play').addEventListener('click',togglePlay);
-  $('add').addEventListener('click',()=>setChoosing(!choosing));
+  $('add').addEventListener('click',()=>{
+    if(!choosing && lanes.length>=MAX_LANES) return loopFull();
+    setChoosing(!choosing);
+  });
   document.querySelectorAll('.tempo button').forEach(b=>b.addEventListener('click',()=>{ bpm=+b.dataset.bpm; setTempoUI(); saveSoon(); }));
   document.addEventListener('visibilitychange',()=>{ if(document.hidden && playing) togglePlay(); });
 

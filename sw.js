@@ -1,6 +1,6 @@
 // Hors ligne : les fichiers de l'appli sont gardés sur la tablette.
 // Après une modification de l'appli, changer VERSION pour que les tablettes récupèrent la nouvelle.
-const VERSION = 'petit-studio-v1';
+const VERSION = 'petit-studio-v2';
 const FILES = ['./', './index.html', './app.js', './manifest.webmanifest',
   './icon-192.png', './icon-512.png', './icon-maskable-512.png', './apple-touch-icon.png'];
 
