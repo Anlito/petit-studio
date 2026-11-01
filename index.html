@@ -34,9 +34,11 @@ h2{font-family:var(--display);font-weight:700;margin:0;line-height:1.1}
 .app{min-height:100%;display:grid;gap:12px;
   padding:max(12px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left));
   grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);grid-template-rows:auto minmax(0,1fr) auto;
-  grid-template-areas:"top top" "pads loop" "mine songs"}
+  grid-template-areas:"top top" "pads loop" "mine songs";
+  height:100%} /* hauteur fixe : la boucle défile dans son cadre au lieu d'agrandir les boutons */
+@media (max-height:480px){ .app{height:auto} } /* très petits écrans : la page défile */
 @media (orientation:portrait){
-  .app{grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1.3fr) minmax(0,1fr) auto auto;
+  .app{grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr) minmax(0,1.15fr) auto auto;
     grid-template-areas:"top" "pads" "loop" "mine" "songs"}
 }
 
@@ -71,10 +73,13 @@ h2{font-family:var(--display);font-weight:700;margin:0;line-height:1.1}
 @keyframes shake{20%,60%{transform:translateX(-10px)}40%,80%{transform:translateX(10px)}}
 .nope .del{animation:blink .4s 4 alternate}
 @keyframes blink{to{background:#ff4d4d;color:#fff;transform:scale(1.3)}}
-.lanes{display:flex;flex-direction:column;gap:8px}
-.lane{display:grid;grid-template-columns:44px minmax(0,1fr) 34px;align-items:center;gap:8px}
-.lane .li{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;font-size:1.4rem;color:#fff}
-.steps{display:grid;grid-template-columns:repeat(8,minmax(0,52px));gap:5px}
+/* --s : taille d'un rond, calculée sur la hauteur du cadre de la boucle pour que 6 pistes tiennent sans défiler */
+.loop{container-type:size}
+@media (max-height:480px){ .loop{container-type:normal} }
+.lanes{--s:max(26px,min(52px,calc((100cqh - 124px) / 6 - 6px)));display:flex;flex-direction:column;gap:6px}
+.lane{display:grid;grid-template-columns:min(44px,var(--s)) minmax(0,1fr) 34px;align-items:center;gap:8px}
+.lane .li{width:min(44px,var(--s));height:min(44px,var(--s));border-radius:12px;display:grid;place-items:center;font-size:calc(min(44px,var(--s)) * .55);color:#fff}
+.steps{display:grid;grid-template-columns:repeat(8,minmax(0,var(--s)));gap:5px}
 .step{aspect-ratio:1;width:100%;border-radius:50%;border:3px solid var(--c);background:transparent;cursor:pointer;padding:0}
 .step.on{background:var(--c)}
 .step:nth-child(4n+1){border-width:4px}
